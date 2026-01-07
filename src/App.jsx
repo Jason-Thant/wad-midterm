@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import deleteIcon from "./assets/delete.svg";
 import pen from "./assets/ink_pen.svg";
 import fork from "./assets/flatware.svg";
@@ -8,7 +9,7 @@ function App() {
   const [items, setItems] = useState([]);
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState("");
   const [error, setError] = useState("");
   const [nextId, setNextId] = useState(1);
 
@@ -34,20 +35,25 @@ function App() {
       return;
     }
 
-    if (price < 0) {
+    if (price === "" || Number(price) < 0) {
       setError("Price must not be less than 0");
       return;
     }
 
     setItems(prev => [
       ...prev,
-      { id: nextId, name, category, price }
+      {
+        id: nextId,
+        name,
+        category,
+        price: Number(price)
+      }
     ]);
 
     setNextId(prev => prev + 1);
     setName("");
     setCategory("");
-    setPrice(0);
+    setPrice("");
     setError("");
   }
 
@@ -71,7 +77,32 @@ function App() {
         </thead>
 
         <tbody>
-          {/* INPUT ROW */}
+          {/* EXISTING ITEMS */}
+          {items.map(item => (
+            <tr key={item.id}>
+              <td>{item.id}</td>
+              <td>{item.name}</td>
+              <td>
+                <img
+                  src={categoryIcon[item.category]}
+                  alt={item.category}
+                  width="24"
+                />
+              </td>
+              <td>{item.price}</td>
+              <td>
+                <img
+                  src={deleteIcon}
+                  alt="delete"
+                  width="20"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleDelete(item.id)}
+                />
+              </td>
+            </tr>
+          ))}
+
+          {/* FORM ROW AT THE BOTTOM */}
           <tr>
             <td>-</td>
 
@@ -98,8 +129,9 @@ function App() {
             <td>
               <input
                 type="number"
+                className="no-spinner"
                 value={price}
-                onChange={e => setPrice(Number(e.target.value))}
+                onChange={e => setPrice(e.target.value)}
               />
             </td>
 
@@ -107,35 +139,10 @@ function App() {
               <button onClick={handleAdd}>Add Item</button>
             </td>
           </tr>
-
-          {/* DATA ROWS */}
-          {items.map(item => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>{item.name}</td>
-              <td>
-                <img
-                  src={categoryIcon[item.category]}
-                  alt={item.category}
-                  width="24"
-                />
-              </td>
-              <td>{item.price}</td>
-              <td>
-                <img
-                  src={deleteIcon}
-                  alt="delete"
-                  width="20"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => handleDelete(item.id)}
-                />
-              </td>
-            </tr>
-          ))}
         </tbody>
       </table>
 
-      {/* ERROR MESSAGE */}
+      {/* ERROR MESSAGE BELOW TABLE */}
       {error && <p style={{ color: "red" }}>{error}</p>}
     </>
   );
